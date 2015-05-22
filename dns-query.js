@@ -28,14 +28,13 @@ module.exports = function (RED) {
     "use strict";
 
     function DnsQueryNode(config) {
-        var newmsg = {};
 
         RED.nodes.createNode(this, config);
         var node = this;
         this.on('input', function (msg) {
             var question = dns.Question({
-                name: msg.payload.name,
-                type: msg.payload.type
+                name: msg.payload.dnsQuery.name,
+                type: msg.payload.dnsQuery.type
             });
 
             var req = dns.Request({
@@ -49,27 +48,29 @@ module.exports = function (RED) {
             });
 
             req.on('message', function (err, answer) {
+                msg.payload.dnsResponse = {};
+
                 answer.answer.forEach(function (a) {
                     if (a.type == 1) {	// A
-                        newmsg.topic = "A";
-                        newmsg.payload = a.address;
+                        msg.payload.dnsResponse.type = "A";
+                        msg.payload.dnsResponse.value = a.address;
                     }
                     else if (a.type == 16) {	// TXT
                         for (var i = 0; i < a.data.length; i++) {
-                            newmsg.topic = "TXT";
-                            newmsg.payload = a.data[i];
+                            msg.payload.dnsResponse.type = "TXT";
+                            msg.payload.dnsResponse.value = a.data[i];
                         }
                     }
                     else if (a.type == 33) {	// SRV
-                        newmsg.topic = "SRV";
-                        newmsg.payload = a.target;
+                        msg.payload.dnsResponse.type = "SRV";
+                        msg.payload.dnsResponse.value = a.target;
                     }
                     else if (a.type == 256) {	// URI
-                        newmsg.topic = "URI";
-                        newmsg.payload = a.target;
+                        msg.payload.dnsResponse.type = "URI";
+                        msg.payload.dnsResponse.value = a.target;
                     }
                 });
-                node.send(newmsg);
+                node.send(msg);
             });
             req.send();
         });
