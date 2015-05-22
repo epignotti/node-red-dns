@@ -33,8 +33,8 @@ module.exports = function (RED) {
         var node = this;
         this.on('input', function (msg) {
             var question = dns.Question({
-                name: msg.payload.dnsQuery.name,
-                type: msg.payload.dnsQuery.type
+                name: msg.dnsQuery.name,
+                type: msg.dnsQuery.type
             });
 
             var req = dns.Request({
@@ -48,26 +48,26 @@ module.exports = function (RED) {
             });
 
             req.on('message', function (err, answer) {
-                msg.payload.dnsResponse = {};
+                msg.dnsResponse = {};
 
                 answer.answer.forEach(function (a) {
                     if (a.type == 1) {	// A
-                        msg.payload.dnsResponse.type = "A";
-                        msg.payload.dnsResponse.value = a.address;
+                        msg.dnsResponse.type = "A";
+                        msg.dnsResponse.value = a.address;
                     }
                     else if (a.type == 16) {	// TXT
                         for (var i = 0; i < a.data.length; i++) {
-                            msg.payload.dnsResponse.type = "TXT";
-                            msg.payload.dnsResponse.value = a.data[i];
+                            msg.dnsResponse.type = "TXT";
+                            msg.dnsResponse.value = a.data[i];
                         }
                     }
                     else if (a.type == 33) {	// SRV
-                        msg.payload.dnsResponse.type = "SRV";
-                        msg.payload.dnsResponse.value = a.target;
+                        msg.dnsResponse.type = "SRV";
+                        msg.dnsResponse.value = a.target;
                     }
                     else if (a.type == 256) {	// URI
-                        msg.payload.dnsResponse.type = "URI";
-                        msg.payload.dnsResponse.value = a.target;
+                        msg.dnsResponse.type = "URI";
+                        msg.dnsResponse.value = a.target;
                     }
                 });
                 node.send(msg);
