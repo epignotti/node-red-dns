@@ -26,27 +26,38 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
         this.on("input", function (msg) {
-            var question = dns.Question({
-                name: msg.dnsQuery.name,
-                type: msg.dnsQuery.type
-            });
 
-            var req = dns.Request({
-                question: question,
-                server: {address: "8.8.8.8", port: 53, type: "udp"},
-                timeout: 1000
-            });
 
-            if (req) {
-                req.on("timeout", function () {
-                    console.log("Request timeout");
-                    msg.dnsResponse.type = "Error";
-                    msg.dnsResponse.value = "Request Timeout";
-                    node.send(msg);
+
+            var req = null;
+
+            if (msg.dnsQuery.name && msg.dnsQuery.type) {
+
+                var question = dns.Question({
+                    name: msg.dnsQuery.name,
+                    type: msg.dnsQuery.type
                 });
 
-                req.send();
+                req = dns.Request({
+                    question: question,
+                    server: {address: "8.8.8.8", port: 53, type: "udp"},
+                    timeout: 1000
+                });
 
+                if (req) {
+                    req.on("timeout", function () {
+                        console.log("Request timeout");
+                        msg.dnsResponse.type = "Error";
+                        msg.dnsResponse.value = "Request Timeout";
+                        node.send(msg);
+                    });
+
+                    req.send();
+
+                } else {
+                    msg.dnsResponse.type = "Error";
+                    msg.dnsResponse.value = "Malformed or missing dns query";
+                }
             } else {
                 msg.dnsResponse.type = "Error";
                 msg.dnsResponse.value = "Malformed or missing dns query";
