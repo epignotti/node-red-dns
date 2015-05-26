@@ -31,7 +31,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
         var node = this;
-        this.on('input', function (msg) {
+        this.on("input", function (msg) {
             var question = dns.Question({
                 name: msg.dnsQuery.name,
                 type: msg.dnsQuery.type
@@ -39,13 +39,24 @@ module.exports = function (RED) {
 
             var req = dns.Request({
                 question: question,
-                server: {address: '8.8.8.8', port: 53, type: 'udp'},
+                server: {address: "8.8.8.8", port: 53, type: "udp"},
                 timeout: 1000
             });
 
-            req.on('timeout', function () {
-                console.log('Timeout in making request');
-            });
+            if (req) {
+                req.on("timeout", function () {
+                    console.log("Request timeout");
+                    msg.dnsResponse.type = "Error";
+                    msg.dnsResponse.value = "Request Timeout";
+                    node.send(msg);
+                });
+
+                req.send();
+
+            } else {
+                msg.dnsResponse.type = "Error";
+                msg.dnsResponse.value = "Malformed or missing dns query";
+            }
 
             req.on('message', function (err, answer) {
                 msg.dnsResponse = {};
@@ -56,10 +67,15 @@ module.exports = function (RED) {
                         msg.dnsResponse.value = a.address;
                     }
                     else if (a.type == 16) {	// TXT
+                        //TODO: Handle text record better
+                        var str = "";
+
                         for (var i = 0; i < a.data.length; i++) {
-                            msg.dnsResponse.type = "TXT";
-                            msg.dnsResponse.value = a.data[i];
+                            str = str + a.data[i]
                         }
+
+                        msg.dnsResponse.type = "TXT";
+                        msg.dnsResponse.value = str;
                     }
                     else if (a.type == 33) {	// SRV
                         msg.dnsResponse.type = "SRV";
@@ -68,11 +84,14 @@ module.exports = function (RED) {
                     else if (a.type == 256) {	// URI
                         msg.dnsResponse.type = "URI";
                         msg.dnsResponse.value = a.target;
+                    } else {
+                        msg.dnsResponse.type = "Error";
+                        msg.dnsResponse.value = "Message not recognised";
                     }
                 });
                 node.send(msg);
             });
-            req.send();
+
         });
     }
 
