@@ -31,6 +31,8 @@ module.exports = function (RED) {
 
             var req = null;
 
+            msg.dnsResponse = {};
+
             if (msg.dnsQuery.name && msg.dnsQuery.type) {
 
                 var question = dns.Question({
@@ -64,7 +66,6 @@ module.exports = function (RED) {
             }
 
             req.on('message', function (err, answer) {
-                msg.dnsResponse = {};
 
                 answer.answer.forEach(function (a) {
                     if (a.type == 1) {	// A
