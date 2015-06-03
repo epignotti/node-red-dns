@@ -48,7 +48,7 @@ module.exports = function (RED) {
 
                 if (req) {
                     req.on("timeout", function () {
-                        console.log("Request timeout");
+                        //console.log("Request timeout");
                         msg.dnsResponse.type = "Error";
                         msg.dnsResponse.value = "Request Timeout";
                         node.send(msg);
