@@ -1,24 +1,24 @@
 {
-  "name"          : "node-red-dns",
-  "version"       : "0.0.1",
-  "description"   : "A Node-RED node to perform dns queries",
-  "dependencies"  : {
-    "native-dns-packet": "anthonykirby/native-dns-packet",
-    "native-dns": "*"
-  },
-  "repository" : {
-    "type":"git",
-    "url":"https://github.com/epignotti/node-red-dns/tree/master/"
-  },
-  "license": "Apache",
-  "keywords": [ "node-red", "dns" ],
-  "node-red"      : {
-    "nodes"     : {
-      "dns-query": "dns-query.js"
-    }
-  },
-  "author": {
-    "name": "Edoardo Pignotti",
-    "email": "edoardo.pignotti@gmail.com"
-  }
+"name"          : "node-red-dns",
+"version"       : "0.0.1",
+"description"   : "A Node-RED node to perform dns queries",
+"dependencies"  : {
+"native-dns-packet": "anthonykirby/native-dns-packet",
+"native-dns": "*"
+},
+"repository" : {
+"type":"git",
+"url":"https://github.com/epignotti/node-red-dns/tree/master/"
+},
+"license": "Apache",pwd
+"keywords": [ "node-red", "dns" ],
+"node-red"      : {
+"nodes"     : {
+"dns-query": "dns-query.js"
+}
+},
+"author": {
+"name": "Edoardo Pignotti",
+"email": "edoardo.pignotti@gmail.com"
+}
 }

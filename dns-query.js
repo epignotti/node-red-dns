@@ -35,7 +35,8 @@ module.exports = function (RED) {
 
             if (msg.dnsQuery.name && msg.dnsQuery.type) {
 
-                var timeout = 1000;
+                var timeout = 25000;
+
 
                 if (msg.dnsQuery.timeout) timeout = msg.dnsQuery.timeout;
 
@@ -52,7 +53,7 @@ module.exports = function (RED) {
 
                 if (req) {
                     req.on("timeout", function () {
-                        //console.log("Request timeout");
+                        console.log("[node-red-dns] dns://"+msg.dnsQuery.name+"?type="+ msg.dnsQuery.type +" Request timeout");
                         msg.dnsResponse.type = "Error";
                         msg.dnsResponse.value = "Request Timeout";
                         node.send(msg);
