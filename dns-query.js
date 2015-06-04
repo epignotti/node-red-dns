@@ -35,6 +35,10 @@ module.exports = function (RED) {
 
             if (msg.dnsQuery.name && msg.dnsQuery.type) {
 
+                var timeout = 1000;
+
+                if (msg.dnsQuery.timeout) timeout = msg.dnsQuery.timeout;
+
                 var question = dns.Question({
                     name: msg.dnsQuery.name,
                     type: msg.dnsQuery.type
@@ -43,7 +47,7 @@ module.exports = function (RED) {
                 req = dns.Request({
                     question: question,
                     server: {address: "8.8.8.8", port: 53, type: "udp"},
-                    timeout: 1000
+                    timeout: timeout
                 });
 
                 if (req) {
